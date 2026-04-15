@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "501094392103",
+    "project_id": "ibappdriver",
+    "storage_bucket": "ibappdriver.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:501094392103:android:51ab8ac836e8c0a137c902",
+        "android_client_info": {
+          "package_name": "com.example.ib_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyACBEPDHXKonZMq9Q4qhU3Pk9bdXZHT83s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

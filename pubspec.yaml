@@ -1,0 +1,35 @@
+name: ib_app
+description: "IB App."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.0
+  shared_preferences: ^2.2.2
+  firebase_core: ^2.30.0
+  firebase_messaging: ^14.7.10
+  url_launcher: ^6.3.0
+  flutter_launcher_icons: ^0.13.1
+  
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  http: ^1.2.0
+  shared_preferences: ^2.2.2
+
+flutter:
+  uses-material-design: true
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/app_logo.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  adaptive_icon_background: "#ffffff" # Optional: for Android adaptive icons
+  
