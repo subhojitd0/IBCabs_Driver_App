@@ -15,7 +15,9 @@ class DutyService {
 
   static Future<bool> decideDuty(String dutyId, int decision) async {
     final response = await http.post(
-      Uri.parse("https://ibcabs.in/bills/api/decide.php"),
+      Uri.parse(
+        "https://bookings.ibcabs.in/checkbooking/api/appdutydecide.php",
+      ),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({"duty_id": dutyId, "dutydecide": decision}),
     );

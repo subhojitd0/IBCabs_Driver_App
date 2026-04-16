@@ -4,6 +4,7 @@ import '../services/auth_service.dart';
 import '../services/duty_service.dart'; // ✅ IMPORTANT
 import 'login_screen.dart'; // ✅ IMPORTANT
 import 'package:url_launcher/url_launcher.dart';
+import '../utils/snackbar_helper.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String username;
@@ -53,14 +54,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     bool success = await DutyService.decideDuty(dutyId, decision);
 
     if (success) {
-      ScaffoldMessenger.of(
+      SnackbarHelper.showSuccess(
         context,
-      ).showSnackBar(const SnackBar(content: Text("Updated")));
+        decision == 1 ? "Duty Accepted." : "Duty Rejected.",
+      );
+
       fetchDuties(); // refresh list
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Failed")));
+      SnackbarHelper.showError(context, "Failed to update duty. Try again.");
     }
   }
 
