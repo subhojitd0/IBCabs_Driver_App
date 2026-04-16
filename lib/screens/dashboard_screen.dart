@@ -5,6 +5,7 @@ import '../services/duty_service.dart'; // ✅ IMPORTANT
 import 'login_screen.dart'; // ✅ IMPORTANT
 import 'package:url_launcher/url_launcher.dart';
 import '../utils/snackbar_helper.dart';
+import 'duty_details.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String username;
@@ -63,6 +64,127 @@ class _DashboardScreenState extends State<DashboardScreen> {
     } else {
       SnackbarHelper.showError(context, "Failed to update duty. Try again.");
     }
+  }
+
+  // 4. Action Buttons
+  Widget actionButtons(dynamic duty) {
+    int status = int.tryParse(duty['status'].toString()) ?? 0;
+
+    // ✅ CASE 1: Accept / Reject
+    if (status == 1) {
+      return Row(
+        children: [
+          Expanded(
+            child: OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.red,
+                side: const BorderSide(color: Colors.red),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: () async {
+                bool? confirm = await showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text("Confirm Reject"),
+                      content: const Text(
+                        "Are you sure you want to reject this duty?",
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text("Cancel"),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                          ),
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text("Reject"),
+                        ),
+                      ],
+                    );
+                  },
+                );
+
+                if (confirm == true) {
+                  decideDuty(duty['id'], 0);
+                }
+              },
+              child: const Text(
+                "Reject",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              onPressed: () => decideDuty(duty['id'], 1),
+              child: const Text("Accept"),
+            ),
+          ),
+        ],
+      );
+    }
+    // ✅ CASE 2: Start Duty
+    else if (status == 99) {
+      return SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue,
+            padding: const EdgeInsets.symmetric(vertical: 14),
+          ),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => DutyDetailsScreen(dutyId: duty['id']),
+              ),
+            );
+          },
+          child: const Text(
+            "Start Duty",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+      );
+    }
+    // ✅ CASE 2: In Progress
+    else if (status == 101) {
+      return SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue,
+            padding: const EdgeInsets.symmetric(vertical: 14),
+          ),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => DutyDetailsScreen(dutyId: duty['id']),
+              ),
+            );
+          },
+          child: const Text(
+            "Close Duty",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+      );
+    }
+
+    // ❌ Default (no buttons)
+    return const SizedBox();
   }
 
   // 🎨 Duty Card UI
@@ -245,46 +367,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(height: 20),
 
                 // 4. Action Buttons
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.red,
-                          side: const BorderSide(color: Colors.red),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        onPressed: () => decideDuty(duty['id'], 0),
-                        child: const Text(
-                          "Reject",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green.shade600,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        onPressed: () => decideDuty(duty['id'], 1),
-                        child: const Text(
-                          "Accept",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                actionButtons(duty),
               ],
             ),
           ),
