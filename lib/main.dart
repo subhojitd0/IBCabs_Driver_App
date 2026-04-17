@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // ✅ NEW
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'services/auth_service.dart';
 import 'services/notification_service.dart';
+import 'utils/theme_helper.dart'; // ✅ NEW
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -11,10 +13,20 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(); // 👈 REQUIRED
-  await NotificationService.initialize(); // 👈 THIS FIXES UNUSED IMPORT
+  await Firebase.initializeApp();
+  await NotificationService.initialize();
 
-  runApp(const IBCabsApp());
+  final themeService = ThemeService();
+  await themeService.loadTheme(); // 🔥 LOAD SAVED THEME
+
+  // ✅ STEP 2: WRAP APP WITH PROVIDER
+  runApp(
+    ChangeNotifierProvider.value(
+      // ✅ USE .value
+      value: themeService,
+      child: const IBCabsApp(),
+    ),
+  );
 }
 
 class IBCabsApp extends StatelessWidget {
@@ -22,10 +34,25 @@ class IBCabsApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: navigatorKey,
-      debugShowCheckedModeBanner: false,
-      home: const SplashDecider(),
+    // ✅ STEP 2: LISTEN TO THEME SERVICE
+    return Consumer<ThemeService>(
+      builder: (context, themeService, child) {
+        return MaterialApp(
+          navigatorKey: navigatorKey,
+          debugShowCheckedModeBanner: false,
+
+          // 🌞 Light Theme
+          theme: ThemeData.light(),
+
+          // 🌙 Dark Theme
+          darkTheme: ThemeData.dark(),
+
+          // 🔥 DYNAMIC SWITCH
+          themeMode: themeService.isDark ? ThemeMode.dark : ThemeMode.light,
+
+          home: const SplashDecider(),
+        );
+      },
     );
   }
 }
@@ -46,7 +73,7 @@ class _SplashDeciderState extends State<SplashDecider> {
   void initState() {
     super.initState();
 
-    setupFCM(); // 👈 ADD THIS
+    setupFCM();
     checkLogin();
   }
 
@@ -76,7 +103,7 @@ class _SplashDeciderState extends State<SplashDecider> {
       );
     });
 
-    // 🔔 App opened from terminated state
+    // 🔔 App opened from terminated
     FirebaseMessaging.instance.getInitialMessage().then((message) async {
       if (message != null) {
         final user = await AuthService.getUserDetails();

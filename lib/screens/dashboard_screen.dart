@@ -5,6 +5,8 @@ import '../services/duty_service.dart'; // ✅ IMPORTANT
 import 'login_screen.dart'; // ✅ IMPORTANT
 import 'package:url_launcher/url_launcher.dart';
 import '../utils/snackbar_helper.dart';
+import 'package:provider/provider.dart';
+import '../utils/theme_helper.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String username;
@@ -270,14 +272,17 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   // 🎨 Duty Card UI
   Widget dutyCard(dynamic duty) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor, // ✅ dynamic
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.blueGrey.withOpacity(0.1),
+            color: isDark ? Colors.black54 : Colors.blueGrey.withOpacity(0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -285,11 +290,11 @@ class _DashboardScreenState extends State<DashboardScreen>
       ),
       child: Column(
         children: [
-          // 1. Header: Date & Time with a subtle background
+          // HEADER
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.05),
+              color: theme.colorScheme.primary.withOpacity(0.1), // ✅ dynamic
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(24),
                 topRight: Radius.circular(24),
@@ -300,17 +305,17 @@ class _DashboardScreenState extends State<DashboardScreen>
               children: [
                 Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.calendar_today,
                       size: 16,
-                      color: Colors.blue,
-                    ),
+                      color: theme.colorScheme.primary,
+                    ), // ✅ dynamic
                     const SizedBox(width: 8),
                     Text(
                       "${duty['date']}",
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w700,
-                        color: Colors.black87,
+                        color: theme.textTheme.bodyLarge?.color, // ✅ dynamic
                       ),
                     ),
                   ],
@@ -319,7 +324,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   "${duty['time']}",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Colors.blue.shade700,
+                    color: theme.colorScheme.primary,
                     fontSize: 16,
                   ),
                 ),
@@ -332,22 +337,27 @@ class _DashboardScreenState extends State<DashboardScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 2. Party Information & Clickable Phone
+                // PARTY INFO
                 Row(
                   children: [
                     CircleAvatar(
-                      backgroundColor: Colors.blue.shade100,
-                      child: const Icon(Icons.person, color: Colors.blue),
+                      backgroundColor: theme.colorScheme.primary.withOpacity(
+                        0.2,
+                      ),
+                      child: Icon(
+                        Icons.person,
+                        color: theme.colorScheme.primary,
+                      ),
                     ),
                     const SizedBox(width: 12),
+
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             duty['party_name'],
-                            style: const TextStyle(
-                              fontSize: 18,
+                            style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -357,12 +367,14 @@ class _DashboardScreenState extends State<DashboardScreen>
                                 scheme: 'tel',
                                 path: duty['party_number'].toString(),
                               );
-                              if (await canLaunchUrl(url)) await launchUrl(url);
+                              if (await canLaunchUrl(url)) {
+                                await launchUrl(url);
+                              }
                             },
                             child: Text(
                               duty['party_number'],
                               style: TextStyle(
-                                color: Colors.blue.shade600,
+                                color: theme.colorScheme.primary,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -370,21 +382,27 @@ class _DashboardScreenState extends State<DashboardScreen>
                         ],
                       ),
                     ),
-                    // Car Tag
+
+                    // CAR TAG
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
+                        color: isDark
+                            ? Colors.grey.shade800
+                            : Colors.grey.shade100,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey.shade300),
+                        border: Border.all(
+                          color: isDark
+                              ? Colors.grey.shade700
+                              : Colors.grey.shade300,
+                        ),
                       ),
                       child: Text(
                         duty['car_number'],
-                        style: const TextStyle(
-                          fontSize: 12,
+                        style: theme.textTheme.bodySmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -397,7 +415,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   child: Divider(height: 1),
                 ),
 
-                // 3. Location Path UI
+                // LOCATION
                 Row(
                   children: [
                     Column(
@@ -407,11 +425,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           size: 18,
                           color: Colors.green,
                         ),
-                        Container(
-                          width: 2,
-                          height: 20,
-                          color: Colors.grey.shade300,
-                        ),
+                        Container(width: 2, height: 20, color: Colors.grey),
                         const Icon(
                           Icons.location_on,
                           size: 18,
@@ -426,18 +440,12 @@ class _DashboardScreenState extends State<DashboardScreen>
                         children: [
                           Text(
                             duty['start_point'],
-                            style: const TextStyle(
-                              fontSize: 15,
-                              color: Colors.black87,
-                            ),
+                            style: theme.textTheme.bodyMedium,
                           ),
                           const SizedBox(height: 12),
                           Text(
                             duty['end_point'],
-                            style: const TextStyle(
-                              fontSize: 15,
-                              color: Colors.black87,
-                            ),
+                            style: theme.textTheme.bodyMedium,
                           ),
                         ],
                       ),
@@ -447,7 +455,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
                 const SizedBox(height: 20),
 
-                // 4. Action Buttons
+                // BUTTONS
                 actionButtons(duty),
               ],
             ),
@@ -468,7 +476,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             DrawerHeader(
               decoration: const BoxDecoration(color: Colors.blue),
               child: Text(
-                "Welcome ${widget.username}",
+                "Welcome ${widget.drivername}",
                 style: const TextStyle(color: Colors.white, fontSize: 18),
               ),
             ),
@@ -500,6 +508,18 @@ class _DashboardScreenState extends State<DashboardScreen>
                   MaterialPageRoute(builder: (_) => const LoginScreen()),
                   (route) => false,
                 );
+              },
+            ),
+
+            const Divider(),
+
+            // 🌙 DARK MODE TOGGLE (ADD HERE)
+            SwitchListTile(
+              title: const Text("Dark Mode"),
+              secondary: const Icon(Icons.dark_mode),
+              value: context.watch<ThemeService>().isDark,
+              onChanged: (value) {
+                context.read<ThemeService>().toggleTheme(value);
               },
             ),
           ],

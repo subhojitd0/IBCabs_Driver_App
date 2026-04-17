@@ -24,43 +24,26 @@ class _LoginScreenState extends State<LoginScreen> {
     String password = passController.text.trim();
     String? token = await FirebaseMessaging.instance.getToken();
 
-    // ✅ Validation check
+    // ✅ Validation
     if (id.isEmpty || password.isEmpty) {
       SnackbarHelper.showError(context, "User ID and Password cannot be empty");
-      return; // ⛔ STOP execution
+      return;
     }
 
     setState(() => isLoading = true);
 
-    final result = await ApiService.login(
-      idController.text,
-      passController.text,
-      token,
-    );
-
-    if (result["success"]) {
-      final username = result["data"]["username"] ?? "User";
-      final drivername = result["data"]["drivername"] ?? "User";
-
-      // ✅ Save session
-      await AuthService.saveLogin(username, drivername);
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) =>
-              DashboardScreen(username: username, drivername: drivername),
-        ),
-      );
-    }
+    final result = await ApiService.login(id, password, token);
 
     setState(() => isLoading = false);
 
     if (result["success"]) {
       final username = result["data"]["username"] ?? "User";
       final drivername = result["data"]["drivername"] ?? "User";
-      SnackbarHelper.showSuccess(context, 'Login Succesful for $drivername');
-      await Future.delayed(const Duration(seconds: 1));
+
+      await AuthService.saveLogin(username, drivername);
+
+      SnackbarHelper.showSuccess(context, 'Login Successful for $drivername');
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -76,52 +59,61 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primary,
+      backgroundColor: AppColors.primary(context),
+
       body: Stack(
         children: [
-          // Bottom white container (card style)
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
               height: MediaQuery.of(context).size.height * 0.85,
               width: double.infinity,
-              decoration: const BoxDecoration(
-                color: AppColors.background,
-                borderRadius: BorderRadius.only(
+              decoration: BoxDecoration(
+                color: AppColors.background(context),
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(30),
                   topRight: Radius.circular(30),
                 ),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 24),
+
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const CircleAvatar(
+                  CircleAvatar(
                     radius: 35,
-                    backgroundColor: AppColors.primary,
-                    child: Icon(Icons.person, color: Colors.white, size: 35),
+                    backgroundColor: AppColors.primary(context),
+                    child: Icon(
+                      Icons.person,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      size: 35,
+                    ),
                   ),
+
                   const SizedBox(height: 20),
 
-                  const Text("Welcome Back", style: AppTextStyles.heading),
+                  Text("Welcome Back", style: AppTextStyles.heading(context)),
+
                   const SizedBox(height: 5),
-                  const Text(
+
+                  Text(
                     "Login to continue",
-                    style: AppTextStyles.subHeading,
+                    style: AppTextStyles.subHeading(context),
                   ),
 
                   const SizedBox(height: 30),
 
                   TextField(
                     controller: idController,
-                    decoration: AppInputDecoration.input("User ID"),
+                    decoration: AppInputDecoration.input(context, "User ID"),
                   ),
+
                   const SizedBox(height: 15),
 
                   TextField(
                     controller: passController,
                     obscureText: true,
-                    decoration: AppInputDecoration.input("Password"),
+                    decoration: AppInputDecoration.input(context, "Password"),
                   ),
 
                   const SizedBox(height: 30),
@@ -133,24 +125,24 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: ElevatedButton(
                             onPressed: handleLogin,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
+                              backgroundColor: AppColors.primary(context),
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6),
+                                borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            child: const Text(
+                            child: Text(
                               "Login",
-                              style: AppTextStyles.buttonText,
+                              style: AppTextStyles.buttonText(context),
                             ),
                           ),
                         ),
 
                   const SizedBox(height: 20),
 
-                  const Text(
+                  Text(
                     "Forgot Password?",
-                    style: TextStyle(color: Colors.grey),
+                    style: TextStyle(color: AppColors.textSecondary(context)),
                   ),
                 ],
               ),
