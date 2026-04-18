@@ -8,6 +8,7 @@ import '../utils/snackbar_helper.dart';
 import 'package:provider/provider.dart';
 import '../utils/theme_helper.dart';
 import 'duty_data.dart';
+import 'duty_invoice.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String username;
@@ -207,6 +208,35 @@ class _DashboardScreenState extends State<DashboardScreen>
 
           child: const Text(
             "Close Duty",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+      );
+    }
+    // ✅ CASE 2: Duty Close
+    else if (status == 3) {
+      return SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color.fromARGB(255, 234, 145, 11),
+            padding: const EdgeInsets.symmetric(vertical: 14),
+          ),
+          onPressed: () async {
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => DutyInvoiceScreen(dutyId: duty['id']),
+              ),
+            );
+
+            if (result == true) {
+              fetchDuties(); // ✅ runs AFTER coming back
+            }
+          },
+
+          child: const Text(
+            "Pay Bill",
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
