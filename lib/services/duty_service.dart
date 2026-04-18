@@ -26,12 +26,17 @@ class DutyService {
     return data['success'] == true;
   }
 
-  static Future<bool> startDuty(String dutyId, int state) async {
+  static Future<bool> submitDutyData({
+    required String dutyId,
+    required int state,
+    required String km,
+  }) async {
     try {
       final now = DateTime.now();
 
       final date =
           "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+
       final time =
           "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}";
 
@@ -42,21 +47,21 @@ class DutyService {
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           "duty_id": dutyId,
+          "dutystate": state,
           "dutydate": date,
           "dutytime": time,
-          "dutystate": state,
+          "dutykm": km,
         }),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         return data['success'] == true;
-      } else {
-        print("HTTP Error: ${response.statusCode}");
-        return false;
       }
+
+      return false;
     } catch (e) {
-      print("Start Duty Error: $e");
+      print("Submit Duty Error: $e");
       return false;
     }
   }

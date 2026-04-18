@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../utils/snackbar_helper.dart';
 import 'package:provider/provider.dart';
 import '../utils/theme_helper.dart';
+import 'duty_data.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String username;
@@ -90,16 +91,16 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Future<void> startDuty(String dutyId, int state) async {
-    bool success = await DutyService.startDuty(dutyId, state);
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => DutyDataScreen(dutyId: dutyId, state: state),
+      ),
+    );
 
-    if (success) {
-      SnackbarHelper.showSuccess(
-        context,
-        state == '1' ? "Duty Updated Successfully" : "Duty Closed Successfully",
-      );
-      fetchDuties(); // refresh dashboard
-    } else {
-      SnackbarHelper.showError(context, "Failed to start duty");
+    // 🔥 Refresh only if success
+    if (result == true) {
+      fetchDuties();
     }
   }
 
@@ -181,34 +182,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             padding: const EdgeInsets.symmetric(vertical: 14),
           ),
           onPressed: () async {
-            bool? confirm = await showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  title: const Text("Confirm Duty Start"),
-                  content: const Text(
-                    "Are you sure you want to start this duty?",
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      child: const Text("Cancel"),
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.lightGreen,
-                      ),
-                      onPressed: () => Navigator.pop(context, true),
-                      child: const Text("Start"),
-                    ),
-                  ],
-                );
-              },
-            );
-
-            if (confirm == true) {
-              await startDuty(duty['id'], 1);
-            }
+            await startDuty(duty['id'], 1);
           },
 
           child: const Text(
@@ -228,34 +202,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             padding: const EdgeInsets.symmetric(vertical: 14),
           ),
           onPressed: () async {
-            bool? confirm = await showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  title: const Text("Confirm Duty End"),
-                  content: const Text(
-                    "Are you sure you want to End this duty?",
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      child: const Text("Cancel"),
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.lightGreen,
-                      ),
-                      onPressed: () => Navigator.pop(context, true),
-                      child: const Text("End"),
-                    ),
-                  ],
-                );
-              },
-            );
-
-            if (confirm == true) {
-              await startDuty(duty['id'], 2);
-            }
+            await startDuty(duty['id'], 2);
           },
 
           child: const Text(
