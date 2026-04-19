@@ -75,7 +75,8 @@ class _DutyInvoiceScreenState extends State<DutyInvoiceScreen> {
                         buildRow("Start KM", data['start_km']),
                         buildRow("Stop Time", data['stop_time']),
                         buildRow("Stop KM", data['stop_km']),
-                        buildRow("Comment", data['comment']),
+                        buildRow("Parking", data['parking']),
+                        buildRow("Toll", data['toll']),
 
                         const Divider(height: 25),
 

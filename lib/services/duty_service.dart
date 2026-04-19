@@ -30,6 +30,8 @@ class DutyService {
     required String dutyId,
     required int state,
     required String km,
+    String? parking,
+    String? toll,
   }) async {
     try {
       final now = DateTime.now();
@@ -51,6 +53,8 @@ class DutyService {
           "dutydate": date,
           "dutytime": time,
           "dutykm": km,
+          "parking": parking,
+          "toll": toll,
         }),
       );
 

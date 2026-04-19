@@ -14,6 +14,9 @@ class DutyDataScreen extends StatefulWidget {
 
 class _DutyDataScreenState extends State<DutyDataScreen> {
   final kmController = TextEditingController();
+  final parkingController = TextEditingController();
+  final tollController = TextEditingController();
+
   bool isLoading = false;
 
   String get title => widget.state == 1 ? "Start Duty KM" : "Stop Duty KM";
@@ -24,11 +27,23 @@ class _DutyDataScreenState extends State<DutyDataScreen> {
 
   Future<void> submit() async {
     String km = kmController.text.trim();
+    String parking = parkingController.text.trim(); // ✅ NEW
+    String toll = tollController.text.trim(); // ✅ NEW
 
     // ✅ Validation
     if (km.isEmpty) {
       SnackbarHelper.showError(context, "Please enter KM value");
       return;
+    }
+
+    if (widget.state == 2) {
+      if (parking.isEmpty || toll.isEmpty) {
+        SnackbarHelper.showError(
+          context,
+          "Please enter parking and toll charges",
+        );
+        return;
+      }
     }
 
     // ✅ Confirmation popup
@@ -58,6 +73,8 @@ class _DutyDataScreenState extends State<DutyDataScreen> {
       dutyId: widget.dutyId,
       state: widget.state,
       km: km,
+      parking: parking, // ✅ NEW
+      toll: toll, // ✅ NEW
     );
 
     setState(() => isLoading = false);
@@ -90,6 +107,28 @@ class _DutyDataScreenState extends State<DutyDataScreen> {
             ),
 
             const SizedBox(height: 20),
+
+            // ✅ Show only when state == 2
+            if (widget.state == 2) ...[
+              TextField(
+                controller: parkingController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: "Parking Charges",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 15),
+              TextField(
+                controller: tollController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: "Toll Charges",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
 
             isLoading
                 ? const CircularProgressIndicator()
