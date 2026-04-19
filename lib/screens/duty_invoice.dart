@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/invoice_service.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class DutyInvoiceScreen extends StatefulWidget {
   final String dutyId;
@@ -100,8 +101,8 @@ class _DutyInvoiceScreenState extends State<DutyInvoiceScreen> {
                               context: context,
                               builder: (_) => AlertDialog(
                                 title: const Text("Payment"),
-                                content: const Text(
-                                  "Collect the amount from party",
+                                content: Text(
+                                  "Collect Rs.${data['amount']} from ${data['party_name']} ",
                                 ),
                                 actions: [
                                   TextButton(
@@ -128,30 +129,79 @@ class _DutyInvoiceScreenState extends State<DutyInvoiceScreen> {
                             padding: const EdgeInsets.all(14),
                           ),
                           onPressed: () async {
+                            final upiId =
+                                "subhojitd0@okhdfcbank"; // 🔴 CHANGE THIS
+                            final name = data['party_name'] ?? "Customer";
+                            final amount = int.parse(data['amount']);
+                            final note = "Payment for Duty ID $data['id']";
+                            final upiUrl =
+                                "upi://pay?pa=$upiId&pn=$name&am=$amount&cu=INR&tn=$note";
+
                             await showDialog(
                               context: context,
                               builder: (_) => Dialog(
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
                                 ),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: const BorderRadius.vertical(
-                                        top: Radius.circular(16),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Text(
+                                        "Scan to Pay",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
-                                      child: Image.asset(
-                                        "assets/images/upipay.png",
+
+                                      const SizedBox(height: 16),
+
+                                      // ✅ QR GENERATED HERE
+                                      QrImageView(
+                                        data: upiUrl,
+                                        version: QrVersions.auto,
+                                        size: 220.0,
+                                        backgroundColor: Colors.white,
+                                        errorCorrectionLevel:
+                                            QrErrorCorrectLevel.H,
+                                        embeddedImage: AssetImage(
+                                          "assets/images/app_logo.png",
+                                        ),
+                                        embeddedImageStyle:
+                                            const QrEmbeddedImageStyle(
+                                              size: Size(40, 40),
+                                            ),
                                       ),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context); // close dialog
-                                      },
-                                      child: const Text("Close"),
-                                    ),
-                                  ],
+
+                                      const SizedBox(height: 12),
+
+                                      Text(
+                                        "₹ $amount",
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 10),
+
+                                      Text(
+                                        name,
+                                        style: const TextStyle(
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 16),
+
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text("Close"),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             );
