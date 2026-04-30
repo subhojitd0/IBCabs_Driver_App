@@ -30,6 +30,8 @@ class DutyService {
     required String dutyId,
     required int state,
     required String km,
+    required double latitude,
+    required double longitude,
     String? parking,
     String? toll,
   }) async {
@@ -55,6 +57,8 @@ class DutyService {
           "dutykm": km,
           "parking": parking,
           "toll": toll,
+          "latitude": latitude,
+          "longitude": longitude,
         }),
       );
 

@@ -5,8 +5,16 @@ import '../utils/snackbar_helper.dart';
 class DutyDataScreen extends StatefulWidget {
   final String dutyId;
   final int state;
+  final double latitude;
+  final double longitude;
 
-  const DutyDataScreen({super.key, required this.dutyId, required this.state});
+  const DutyDataScreen({
+    super.key,
+    required this.dutyId,
+    required this.state,
+    required this.latitude,
+    required this.longitude,
+  });
 
   @override
   State<DutyDataScreen> createState() => _DutyDataScreenState();
@@ -75,6 +83,8 @@ class _DutyDataScreenState extends State<DutyDataScreen> {
       km: km,
       parking: parking, // ✅ NEW
       toll: toll, // ✅ NEW
+      latitude: widget.latitude,
+      longitude: widget.longitude,
     );
 
     setState(() => isLoading = false);

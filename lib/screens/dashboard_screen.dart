@@ -9,6 +9,8 @@ import 'package:provider/provider.dart';
 import '../utils/theme_helper.dart';
 import 'duty_data.dart';
 import 'duty_invoice.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String username;
@@ -58,6 +60,28 @@ class _DashboardScreenState extends State<DashboardScreen>
     }
   }
 
+  Future<Position?> getCurrentLocation() async {
+    // Request permission
+    var status = await Permission.location.request();
+
+    if (!status.isGranted) {
+      print("Location permission denied");
+      return null;
+    }
+
+    // Check if location is enabled
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      print("Location service disabled");
+      return null;
+    }
+
+    // Get location
+    return await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+  }
+
   // 🔥 Fetch duties using DutyService
   Future<void> fetchDuties() async {
     try {
@@ -91,11 +115,21 @@ class _DashboardScreenState extends State<DashboardScreen>
     }
   }
 
-  Future<void> startDuty(String dutyId, int state) async {
+  Future<void> startDuty(
+    String dutyId,
+    int state,
+    double latitude,
+    double longitude,
+  ) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => DutyDataScreen(dutyId: dutyId, state: state),
+        builder: (_) => DutyDataScreen(
+          dutyId: dutyId,
+          state: state,
+          latitude: latitude,
+          longitude: longitude,
+        ),
       ),
     );
 
@@ -183,7 +217,24 @@ class _DashboardScreenState extends State<DashboardScreen>
             padding: const EdgeInsets.symmetric(vertical: 14),
           ),
           onPressed: () async {
-            await startDuty(duty['id'], 1);
+            final position = await getCurrentLocation();
+
+            if (position == null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Unable to get location")),
+              );
+              return;
+            }
+
+            print("Lat: ${position.latitude}, Lng: ${position.longitude}");
+
+            // 🔥 Pass location to next screen or API
+            await startDuty(
+              duty['id'],
+              1,
+              position.latitude,
+              position.longitude,
+            );
           },
 
           child: const Text(
@@ -203,7 +254,24 @@ class _DashboardScreenState extends State<DashboardScreen>
             padding: const EdgeInsets.symmetric(vertical: 14),
           ),
           onPressed: () async {
-            await startDuty(duty['id'], 2);
+            final position = await getCurrentLocation();
+
+            if (position == null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Unable to get location")),
+              );
+              return;
+            }
+
+            print("Lat: ${position.latitude}, Lng: ${position.longitude}");
+
+            // 🔥 Pass location to next screen or API
+            await startDuty(
+              duty['id'],
+              2,
+              position.latitude,
+              position.longitude,
+            );
           },
 
           child: const Text(
